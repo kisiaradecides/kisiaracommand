@@ -1,0 +1,16 @@
+export type UserRole =
+  | 'super_user'
+  | 'aspirant'
+  | 'team_lead'
+  | 'assistant'
+  | 'opinion_leader'
+  | 'agent'
+
+export type EventStatus = 'submitted' | 'scheduled' | 'discarded'
+export type TaskStatus = 'todo' | 'in_progress' | 'under_review' | 'completed'
+export type TaskPriority = 'high' | 'medium' | 'low'
+export type ReportType = 'station_status' | 'turnout' | 'incident'
+export type StationStatus = 'open' | 'delayed' | 'problem' | 'closed'
+export type IncidentStatus = 'active' | 'resolved' | 'escalated'
+export type MissionStatus = 'active' | 'completed' | 'cancelled'
+export type MeetingType = 'in_person' | 'phone_call' | 'whatsapp_group'
