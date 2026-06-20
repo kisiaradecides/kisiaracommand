@@ -381,7 +381,7 @@ function TaskDetail({ task, onRefresh, currentUser }: {
     supabase.from('task_comments').select('id, content, created_at, author:users!author_id(full_name)')
       .eq('task_id', task.id).order('created_at')
       .then(({ data }) => {
-        if (data) setComments(data as { id: string; content: string; created_at: string; author: { full_name: string } }[])
+        if (data) setComments(data as unknown as { id: string; content: string; created_at: string; author: { full_name: string } }[])
       })
   }, [task.id])
 
@@ -398,7 +398,7 @@ function TaskDetail({ task, onRefresh, currentUser }: {
     const { data } = await supabase.from('task_comments')
       .select('id, content, created_at, author:users!author_id(full_name)')
       .eq('task_id', task.id).order('created_at')
-    if (data) setComments(data as { id: string; content: string; created_at: string; author: { full_name: string } }[])
+    if (data) setComments(data as unknown as { id: string; content: string; created_at: string; author: { full_name: string } }[])
   }
 
   const assignee = task.assignee as { full_name: string; role: string } | undefined

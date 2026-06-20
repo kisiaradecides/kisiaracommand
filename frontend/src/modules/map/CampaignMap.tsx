@@ -45,7 +45,7 @@ export function CampaignMap() {
       .select('id, full_name, role, region_id, home_location, photo_url')
       .eq('is_active', true)
       .neq('role', 'aspirant')
-      .then(({ data }: { data: AppUser[] | null }) => { if (data) setTeamMembers(data) })
+      .then(({ data }) => { if (data) setTeamMembers(data as AppUser[]) })
   }, [user])
 
   useEffect(() => {

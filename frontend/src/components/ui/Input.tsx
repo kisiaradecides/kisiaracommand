@@ -59,7 +59,7 @@ export function Select({
       {label && <label className="text-xs font-medium text-slate-400 uppercase tracking-wide">{label}</label>}
       <select
         className={`${inputBase} ${error ? 'border-crimson/50' : ''} ${className}`}
-        {...(props as React.SelectHTMLAttributes<HTMLSelectElement>)}
+        {...(props as unknown as React.SelectHTMLAttributes<HTMLSelectElement>)}
       >
         {children}
       </select>
