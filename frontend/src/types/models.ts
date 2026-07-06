@@ -36,6 +36,7 @@ export interface AppUser {
   networks: string[] | null
   estimated_influence: number
   loyalty_rating: number | null
+  rating_mode: 'auto' | 'manual'
   private_notes: string | null
   home_location: { type: string; coordinates: [number, number] } | null
   polling_station_id: number | null

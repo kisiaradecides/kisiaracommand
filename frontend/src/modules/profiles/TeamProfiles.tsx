@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react'
-import { Users, Search, Star, MapPin, Phone, Mail, Plus, Edit2, UserX, UserCheck } from 'lucide-react'
+import { Users, Search, Star, MapPin, Phone, Mail, Plus, Edit2, UserX, UserCheck, Zap, Lock } from 'lucide-react'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { supabase } from '../../lib/supabase'
@@ -31,6 +31,7 @@ const BLANK = {
   region_id: '' as string,
   estimated_influence: '0',
   loyalty_rating: '' as string,
+  rating_mode: 'auto' as 'auto' | 'manual',
   networks: '',
   private_notes: '',
   lat: '' as string,
@@ -93,6 +94,7 @@ export function TeamProfiles() {
       region_id: String(m.region_id ?? ''),
       estimated_influence: String(m.estimated_influence ?? 0),
       loyalty_rating: String(m.loyalty_rating ?? ''),
+      rating_mode: m.rating_mode ?? 'auto',
       networks: (m.networks ?? []).join(', '),
       private_notes: m.private_notes ?? '',
       lat: coords ? String(coords[1]) : '',
@@ -132,7 +134,8 @@ export function TeamProfiles() {
       role: form.role,
       region_id: form.region_id ? parseInt(form.region_id) : null,
       estimated_influence: parseInt(form.estimated_influence || '0'),
-      loyalty_rating: form.loyalty_rating ? parseInt(form.loyalty_rating) : null,
+      loyalty_rating: form.rating_mode === 'manual' && form.loyalty_rating ? parseInt(form.loyalty_rating) : null,
+      rating_mode: form.rating_mode,
       networks: networksArr,
       private_notes: form.private_notes || null,
       home_location: homeLocation,
@@ -390,7 +393,18 @@ function ProfileDetail({ member, isAdmin, onEdit, onToggleActive }: {
 
       {member.loyalty_rating && (
         <div className="bg-surface-elevated rounded-xl p-3 border border-surface-border">
-          <p className="text-xs text-slate-500 mb-1.5">Loyalty Rating</p>
+          <div className="flex items-center justify-between mb-1.5">
+            <p className="text-xs text-slate-500">Loyalty Rating</p>
+            {member.rating_mode === 'auto' ? (
+              <span className="flex items-center gap-1 text-[10px] text-emerald-400">
+                <Zap className="w-2.5 h-2.5" /> Auto-calculated
+              </span>
+            ) : (
+              <span className="flex items-center gap-1 text-[10px] text-gold">
+                <Lock className="w-2.5 h-2.5" /> Manual
+              </span>
+            )}
+          </div>
           <div className="flex items-center gap-1">
             {Array.from({ length: 5 }).map((_, i) => (
               <Star key={i} className="w-4 h-4"
@@ -479,23 +493,48 @@ function MemberForm({ form, setForm, saving, isEdit, showMap, setShowMap, onSave
         <Input label="Estimated Voter Influence" type="number" min="0"
           value={form.estimated_influence} onChange={f('estimated_influence')} placeholder="0" />
         <div className="flex flex-col gap-1.5">
-          <label className="text-xs font-medium text-slate-400 uppercase tracking-wide">Loyalty Rating (1–5)</label>
-          <div className="flex gap-2 items-center">
-            {[1,2,3,4,5].map((n) => (
-              <button key={n} type="button"
-                onClick={() => setForm((p) => ({ ...p, loyalty_rating: String(p.loyalty_rating) === String(n) ? '' : String(n) }))}
-                className="focus:outline-none transition-transform hover:scale-110">
-                <Star className="w-6 h-6"
-                  style={{
-                    color: parseInt(form.loyalty_rating || '0') >= n ? '#c17e1a' : '#374151',
-                    fill: parseInt(form.loyalty_rating || '0') >= n ? '#c17e1a' : 'none',
-                  }} />
-              </button>
-            ))}
-            {form.loyalty_rating && (
-              <span className="text-xs text-gold ml-1">{form.loyalty_rating}/5</span>
-            )}
+          <div className="flex items-center justify-between">
+            <label className="text-xs font-medium text-slate-400 uppercase tracking-wide">Loyalty Rating</label>
+            <button
+              type="button"
+              onClick={() => setForm((p) => ({ ...p, rating_mode: p.rating_mode === 'auto' ? 'manual' : 'auto' }))}
+              className={`flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full border transition-colors ${
+                form.rating_mode === 'auto'
+                  ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
+                  : 'bg-gold/10 border-gold/30 text-gold'
+              }`}
+            >
+              {form.rating_mode === 'auto'
+                ? <><Zap className="w-2.5 h-2.5" /> Auto-calculated</>
+                : <><Lock className="w-2.5 h-2.5" /> Manual</>
+              }
+            </button>
           </div>
+          {form.rating_mode === 'auto' ? (
+            <div className="flex items-center gap-2 py-1.5 px-2 bg-emerald-500/5 border border-emerald-500/20 rounded-lg">
+              <Zap className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
+              <p className="text-xs text-slate-400">
+                Rating calculated from task completion, messages to aspirant, news posts, and tenure.
+              </p>
+            </div>
+          ) : (
+            <div className="flex gap-2 items-center">
+              {[1,2,3,4,5].map((n) => (
+                <button key={n} type="button"
+                  onClick={() => setForm((p) => ({ ...p, loyalty_rating: String(p.loyalty_rating) === String(n) ? '' : String(n) }))}
+                  className="focus:outline-none transition-transform hover:scale-110">
+                  <Star className="w-6 h-6"
+                    style={{
+                      color: parseInt(form.loyalty_rating || '0') >= n ? '#c17e1a' : '#374151',
+                      fill: parseInt(form.loyalty_rating || '0') >= n ? '#c17e1a' : 'none',
+                    }} />
+                </button>
+              ))}
+              {form.loyalty_rating && (
+                <span className="text-xs text-gold ml-1">{form.loyalty_rating}/5</span>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
