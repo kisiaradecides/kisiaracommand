@@ -51,6 +51,8 @@ export function CampaignMap() {
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return
 
+    const cartoKey = import.meta.env.VITE_CARTO_KEY
+
     const map = L.map(containerRef.current, {
       center: centroid,
       zoom: 13,
@@ -60,7 +62,7 @@ export function CampaignMap() {
 
     // Base layers
     const carto = L.tileLayer(
-      'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+      `https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png?key=${cartoKey}`,
       { attribution: '© OSM © CARTO', subdomains: 'abcd', maxZoom: 20 }
     )
     const topo = L.tileLayer(
